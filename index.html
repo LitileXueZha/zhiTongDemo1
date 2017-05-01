@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>寻他网</title>
+    <link rel="SHORTCUT ICON" href="img/14d.ico">
+    <link rel="stylesheet" href="css/frozen.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <script src="lib/zepto.min.js"></script>
+    <script src="js/frozen.js"></script>
+    <style>
+        .container{
+            padding: 5px;
+        }
+        .ui-slider-content>li>span{
+            background-size: cover;
+        }
+
+        .textNext{
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            background-color: rgba(255,255,255,0.1);
+            position: absolute;
+            width: 60%;
+            margin-left: 20%;
+            margin-top: 100px;
+            z-index: 999;
+            text-align: center;
+            border-radius: 5px;
+            padding-bottom:  80px;
+        }
+        .textNext>a{
+            font-size: 20px;
+        }
+        .textNext>p{
+            font-size:  20px;
+            color: yellow;
+            text-shadow: 0 0 5px white, 0 0 2px black;
+        }
+        .ui-slider-indicators li{
+            background-color: rgba(255, 255, 0, 0.47);
+            margin-right: 10px;
+            width: 15px;
+            height: 2px;
+            border-radius: 0;
+        }
+        .ui-slider-indicators li.current{
+            background-color: white;
+            box-shadow: 0 0 10px yellow;
+        }
+    </style>
+    <script>
+        var WIDTH = window.innerWidth || document.document.clientWidth || document.documentElement.clientWidth,
+            HEIGHT = window.innerHeight || document.document.clientHeight || document.documentElement.clientHeight;
+        //  获取设备宽高
+        window.onload = function () {
+
+          //  自执行函数，防止污染全局作用域
+          (function () {
+
+            //  遍历每个图片设置宽高、以及Carousel容器
+            $('.ui-slider').css({
+              width: WIDTH-10,
+              height: HEIGHT-10
+            }).find('span').css({
+              width: WIDTH-10,
+              height: HEIGHT-10
+            });
+
+            //  轮播图事件
+            var slider = new fz.Scroll('.ui-slider', {
+              role: 'slider',
+              indicator: true,
+              autoplay: true,
+              interval: 5000
+            });
+          })();
+        };
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="ui-slider" style="padding-top: 0">
+        <ul class="ui-slider-content" style="width: 400%;">
+            <li class="current"><span style="background-image: url('img/ba.jpg')"></span></li>
+            <li><span style="background-image: url('img/千库网-梦幻森林图片.jpg')"></span></li>
+            <li><span style="background-image: url('img/城市.jpg')"></span></li>
+            <li><span style="background-image: url('img/好看.jpg')"></span></li>
+        </ul>
+        <section class="textNext">
+            <a href="#" class="ui-btn-lg" style="background: rgba(255,255,255,0.1);color: white;">寻她</a>
+            <br/><br/><br/>
+            <p>你在找我&nbsp;&nbsp;</p>
+            <p>我也在找你</p>
+        </section>
+    </div>
+</div>
+</body>
+</html>
