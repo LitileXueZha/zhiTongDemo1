@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>注册-寻她App</title>
+    <link rel="SHORTCUT ICON" href="img/14d.ico">
+    <link rel="stylesheet" href="css/frozen.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <script src="lib/zepto.min.js"></script>
+    <script src="js/frozen.js"></script>
+    <style>
+        /*  标题  */
+        .title{
+            background-color: #636;
+            padding: 25px;
+            color: white;
+            text-align: center;
+        }
+        /*  注册类型  */
+        .ui-form-item-radio{
+            /*border-bottom: 1px solid #663366;*/
+            border-bottom-color: transparent;
+            /*padding-top: 10px;*/
+            /*padding-bottom: 5px;*/
+        }
+        .ui-radio{
+            display: block;
+            width: 100%;
+            padding-left: 96px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        .ui-radio>input{
+            position: absolute;
+            top: 10px;
+            left: 36px;
+        }
+        .ui-form-item-radio input::after{
+            background: #663366 !important;
+            left: 4px !important;
+            top: 4px !important;
+        }
+        .ui-form-item-radio input::before{
+            width: 20px;
+            height: 20px;
+        }
+        .ui-form-item-radio:nth-child(1){
+            border-bottom: none !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">注册<small><sub>&nbsp;&nbsp;&nbsp;&nbsp;Register</sub></small></h1>
+    <div class="ui-form ui-border-t">
+        <form action="#">
+            <div class="ui-form-item ui-form-item-radio ui-border-b">
+                <label class="ui-radio" for="r2">
+                    <input type="radio" id="r2" checked name="radio">
+                    找工作
+                </label>
+            </div>
+            <div class="ui-form-item ui-form-item-radio ui-border-b">
+                <label class="ui-radio" for="r1">
+                    <input type="radio" id="r1" name="radio">
+                    找人
+                </label>
+            </div>
+            <!--<div class="ui-form-item ui-form-item-radio">-->
+                <!--<div>-->
+                    <!--<label class="ui-radio" for="r1">-->
+                        <!--<input type="radio" id="r1" name="userType" checked>-->
+                        <!--找工作-->
+                    <!--</label>-->
+                <!--</div>-->
+                <!--<div>-->
+                    <!--<label class="ui-radio" for="r2">-->
+                        <!--<input type="radio" id="r2" name="userType">-->
+                        <!--找人-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="ui-form-item ui-border-b">
+                <label class="ui-txt-justify">手机号</label>
+                <input type="tel" placeholder="最好是经常用的手机号" name="user">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label class="ui-txt-justify">密码</label>
+                <input type="password" placeholder="4位数字密码" name="password">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label class="ui-txt-justify">姓名</label>
+                <input type="password" placeholder="真实姓名" name="name">
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label class="ui-txt-justify">身份证号</label>
+                <input type="password" placeholder="有效证件" name="IDcard">
+            </div>
+
+        </form>
+    </div>
+</div>
+</body>
+</html>

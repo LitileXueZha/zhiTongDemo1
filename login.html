@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>登陆-寻她App</title>
+    <link rel="SHORTCUT ICON" href="img/14d.ico">
+    <link rel="stylesheet" href="css/frozen.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <script src="lib/zepto.min.js"></script>
+    <script src="js/frozen.js"></script>
+    <style type="text/css">
+        /*  标题巨幕  */
+        .title{
+            background-color: #c06;
+            text-align: center;
+            padding: 25px;
+            font-weight: bold;
+            color: white;
+        }
+        /*  忘记密码  */
+        .otherAction{
+            text-align: right;
+            padding-right: 5px;
+            padding-top: 5px;
+            font-size: 12px;
+        }
+        /*  登陆、注册按钮组  */
+        .ui-btn-group{
+            position: fixed;
+            bottom: 5px;
+        }
+        /*  注册按钮  */
+        .registerBtn{
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+        /*  密码图标  */
+        .pass{
+            position: absolute;
+            top: 0;
+            right: 12px;
+            font-size: 20px;
+        }
+        /*  错误、成功登陆消息，初始为空  */
+        #error, #success{
+            display: none;
+        }
+        /*  图标，初始为空  */
+        .ui-form-item>button{
+            display: none;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+          //  切换密码是否可见
+          var canSeePassword = false;
+          $('.pass').click(function () {
+            if(canSeePassword){
+              $(this).attr('class', 'ui-icon-commented pass')  //  为什么不用add\removeClass
+                .prev('input').attr('type', 'password');       //  这个ui库的字体图标类名前面不能有任何东西
+              canSeePassword = false;
+            } else{
+              $(this).attr('class', 'ui-icon-comment pass')
+                .prev('input').attr('type', 'text');
+              canSeePassword = true;
+            }
+          });
+
+          //  监听文本显示图标
+          $('input').keyup(function () {
+            console.log('Changed!');
+            if($.trim($(this).val()) !== ''){
+              $(this).next().show();
+            } else{
+              $(this).next().hide();
+            }
+          });
+
+          //  清除输入内容
+          $('.ui-icon-close').click(function () {
+            $(this).prev().val('');
+          });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">登陆<small><sub>&nbsp;&nbsp;&nbsp;&nbsp;Login</sub></small></h1>
+    <div class="ui-form ui-border-t">
+        <form action="#">
+            <div class="ui-form-item ui-border-b">
+                <label class="ui-txt-justify">手机号</label>
+                <input type="tel" placeholder="注册时用的手机号" name="user">
+                <button class="ui-icon-close" type="button"></button>
+            </div>
+            <div class="ui-form-item ui-border-b">
+                <label class="ui-txt-justify">密码</label>
+                <input type="password" placeholder="4位数字密码" name="password">
+                <button class="ui-icon-commented pass" type="button"></button>
+            </div>
+        </form>
+    </div>
+    <div class="otherAction">
+        <a href="#">忘记密码？</a>
+    </div>
+    <div class="ui-btn-group">
+        <button class="ui-btn-lg ui-btn-primary">登陆</button>
+        <button class="ui-btn-lg"><a href="register.html" class="registerBtn">注册</a></button>
+    </div>
+    <div class="ui-tips ui-tips-warn" id="error">
+        <i></i><span>账号或密码错误！</span>
+    </div>
+    <div class="ui-tips ui-tips-success" id="success">
+        <i></i><span>登陆成功！即将跳转</span>
+    </div>
+</div>
+</body>
+</html>
