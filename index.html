@@ -33,7 +33,11 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
             box-sizing: border-box;
-            background-color: rgba(255,255,255,0.1);
+            background: -webkit-linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1),rgba(255,255,255,0.1),transparent);
+            background: -moz-linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1),rgba(255,255,255,0.1),transparent);
+            background: -ms-linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1),rgba(255,255,255,0.1),transparent);
+            background: -o-linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1),rgba(255,255,255,0.1),transparent);
+            background: linear-gradient(rgba(255,255,255,0.1),rgba(255,255,255,0.1),rgba(255,255,255,0.1),transparent);
             position: absolute;
             width: 60%;
             margin-left: 20%;
@@ -68,9 +72,14 @@
             border: 1px solid rgba(255,255,255,0.5);
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
         }
     </style>
     <script>
+
+        'use strict';
+
         $(document).ready(function () {
           (function () {
             //  轮播图事件
@@ -94,7 +103,7 @@
             <li><span style="background-image: url('img/好看.jpg')"></span></li>
         </ul>
         <section class="textNext">
-            <a href="login.html" class="btn" style="background: rgba(255,255,255,0.1);color: white;">寻她</a>
+            <a href="login.html" class="btn">寻她</a>
             <br/><br/><br/>
             <p>你在找我&nbsp;&nbsp;</p>
             <p>我也在找你</p>

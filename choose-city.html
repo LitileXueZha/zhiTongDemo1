@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>选择城市</title>
+    <link rel="SHORTCUT ICON" href="img/14d.ico">
+    <link rel="stylesheet" href="css/frozen.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <script src="lib/zepto.min.js"></script>
+    <script src="js/frozen.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1begGdgTjavFf31l4R4pslSKfGoyBp5U"></script>
+    <style>
+        body{
+            background-color: #eee;
+        }
+        /*  标题，欢迎语  */
+        .title{
+            background-color: #663;
+            padding: 25px;
+            color: white;
+            text-align: center;
+        }
+        /*  设置30秒提示  */
+        .ui-poptips-cnt{
+            background-color: black;
+            width: 95%;
+            margin-left: 2.5%;
+            border-radius: 2px;
+            position: fixed;
+            bottom: -40px;
+        }
+        /*  位置图标  */
+        .ui-icon-pin{
+            display: inline;
+            font-size: 25px;
+        }
+        /*  城市列表  */
+        .citys-container{
+            padding: 15px 10px;
+        }
+        .citys{
+            width: 100%;
+            text-align: center;
+            background-color: #fff;
+            -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            -moz-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+        }
+        .citys td, .citys th{
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            width: 50%;
+        }
+        .citys td:nth-child(1), .citys th:nth-child(1){
+            border-right: 1px solid #eee;
+        }
+        .citys>thead{
+            border-bottom: 1px solid #eee;
+        }
+        .ui-select{
+            width: 75px;
+            margin: 0 auto;
+            position: relative;
+            left: 3px;
+        }
+        .currCity{
+            padding-left: 10px;
+            color: red;
+        }
+        /*  下一步链接  */
+        .ui-btn-lg{
+            border-radius: 2px;
+            border: none;
+            padding: 0;
+            color: #663;
+            -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.36);
+            -moz-box-shadow: 0 0 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.36);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.36);
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+          // 30秒动画提示
+          var timer = null;
+          timer = setTimeout(function () {
+            var tips = $('.ui-poptips-cnt'),
+                tipsBottom = $(tips).offset().left;
+            tips[0].style.bottom = tipsBottom +'px';
+            tips[0].style.transform = 'rotate(360deg)';
+            tips[0].style.transition = '1s ease-out';
+            $(tips).click(function () {
+              tips[0].style.bottom = '-40px';
+              tips[0].style.transform = 'rotate(0deg)';
+              tips[0].style.transition = '1s ease-in';
+            });
+          }, 30000);
+
+          // 是用百度地图API，获取地理位置
+          var geolocation = new BMap.Geolocation();
+          geolocation.getCurrentPosition(function (pos) {
+            if(this.getStatus() === 0){
+              $('.currCity').html(pos.address.city);
+
+              // 清除30秒动画，加载提示
+              clearTimeout(timer);
+              $('.ui-loading-wrap').hide();
+            } else {
+              alert("没抓到你，你该不会没开网吧？");
+            }
+          });
+
+          // 跳转选择工种页面并传入当前选择的城市
+          $('select').change(function () {
+            $('.ui-btn-lg').attr('href', 'choose-workerType?city='+ $('option[value="'+ $(this).val() +'"]').html() +'+'+ $(this).val());
+          });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">欢迎<small><sub>&nbsp;&nbsp;&nbsp;&nbsp;Welcome</sub></small></h1>
+    <div class="ui-loading-wrap">
+        <p>我在定位你的城市，等会...</p>
+        <i class="ui-loading"></i>
+    </div>
+    <div class="ui-poptips-cnt"><i class="ui-icon-info-block"></i>加载这么久？手机GPS没开吧</div>
+    <div class="citys-container">
+        <table class="citys" cellpadding="2">
+            <thead>
+            <tr>
+                <th>当前城市</th>
+                <th>目标城市</th>
+            </tr>
+            </thead>
+            <tr>
+                <td>
+                    <span class="currCity">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <i class="ui-icon-pin"></i>
+                </td>
+                <td>
+                    <div class="ui-select">
+                        <select name="destination">
+                            <option value="everywhere">不限地区</option>
+                            <optgroup label="广东">
+                                <option value="guangZhou">广州市</option>
+                                <option value="shenZhen">深圳市</option>
+                                <option value="dongGuan">东莞市</option>
+                            </optgroup>
+                            <optgroup label="北京">
+                                <option value="beiJing">北京市</option>
+                            </optgroup>
+                            <optgroup label="安徽">
+                                <option value="heFei">合肥市</option>
+                                <option value="huaiNan">淮南市</option>
+                                <option value="liuAn">六安市</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="ui-btn-wrap">
+        <a href="choose-workerType.html?city=不限地区+everywhere" class="ui-btn-lg">选择，下一步</a>
+    </div>
+</div>
+</body>
+</html>

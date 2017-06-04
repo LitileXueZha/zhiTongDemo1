@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>找人...</title>
+    <link rel="SHORTCUT ICON" href="img/14d.ico">
+    <link rel="stylesheet" href="css/frozen.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <script src="lib/zepto.min.js"></script>
+    <script src="js/frozen.js"></script>
+    <style>
+        body{
+            background-color: #eee;
+        }
+        /*  标题，欢迎语  */
+        .title{
+            background-color: #663;
+            padding: 25px;
+            color: white;
+            text-align: center;
+        }
+        /*  多选，工种  */
+        .checkbox-container{
+            padding-left: 95px;
+        }
+        .checkbox-container>.ui-checkbox-s{
+            width: 100px;
+        }
+        .ui-checkbox-s>input{
+            width: 13px;
+        }
+        /*  兼容ie消除选择框  */
+        .ui-select select::-ms-expand{
+            display: none;
+        }
+        /*  操作提示，设置高度为0，用动画弹出来  */
+        .ui-tips{
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        /*  工资高亮  */
+        input[name="pay"]{
+            color: #ff4222;
+        }
+        /*  自己的样式  */
+        .my-form-item{
+            height: 55px;
+            padding: 0;
+        }
+        .my-form-item>input{
+            width: 50%;
+            height: 100%;
+            padding-left: 0;
+            font-weight: bold;
+            border-right: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        .my-form-item>input:-ms-input-placeholder, .my-form-item>input::-webkit-input-placeholder{
+            text-align: center;
+        }
+        .my-form-item>button{
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 50%;
+        }
+        .my-form-item>button:hover{
+            background-color: #eee;
+        }
+        .my-form-item>button>.ui-icon-add{
+            display: inline;
+        }
+        .my-form-item>button>.ui-icon-add::before{
+            font-size: 20px;
+            color: #000;
+        }
+        /*  删除、修改按钮  */
+        .my-form-item>div{
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 50%;
+        }
+        .my-form-item>div>button{
+            width: 50%;
+            height: 100%;
+        }
+        .my-form-item>div>button:nth-child(2){
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+        .my-form-item>div>button>span{
+            font-size: 20px;
+            color: #000;
+        }
+        /*  展示表单有空格  */
+        .show-items{
+            margin-top: -20px;
+        }
+        .show-items>.ui-tips{
+            position: relative;
+            top: 20px;
+        }
+        .show-items>.ui-form{
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+
+        "use strict";
+
+        var timer = null;
+
+        $(document).ready(function () {
+          //  设置提示，添加时
+          var successTip = $(".ui-tips-success")[0],
+              warnTip = $(".ui-tips-warn")[0],
+              infoTip = $(".ui-tips-info")[0];
+          $(".ui-icon-add").parent().click(function () {
+            //  这里使用原生动画实现主要是因为jQuery对动画支持的不怎么好
+            var random = Math.random().toFixed(1);
+            if(random > 0.5){
+              successTip.style.height = "auto";
+              successTip.style.padding = "15px";
+              successTip.style.transition = "0.5s";
+            } else{
+              warnTip.style.height = "auto";
+              warnTip.style.padding = "15px";
+              warnTip.style.transition = "0.5s";
+            }
+            hideTips();
+          });
+
+          //  编辑状态,,,以及保存
+          $(".ui-icon-set").click(function () {
+            var parent = $(this).parent().html("<span class='ui-icon-checked'></span>").parent().parent().parent();
+            $(parent).find('input').removeAttr('disabled');
+            $(parent).find('select').removeAttr('disabled');
+            infoTip.style.height = "auto";
+            infoTip.style.padding = "15px";
+            infoTip.style.transition = "0.5s";
+            hideTips();
+          }).parent().on('click', '.ui-icon-checked', function () {
+            var parent = $(this).parent().html("<span class='ui-icon-set'></span>").parent().parent().parent();
+            $(parent).find('input').attr('disabled', 'disabled');
+            $(parent).find('select').attr('disabled', 'disabled');
+          }).parent().on('click', '.ui-icon-set', function () {
+            var parent = $(this).parent().html("<span class='ui-icon-checked'></span>").parent().parent().parent();
+            $(parent).find('input').removeAttr('disabled');
+            $(parent).find('select').removeAttr('disabled');
+            infoTip.style.height = "auto";
+            infoTip.style.padding = "15px";
+            infoTip.style.transition = "0.5s";
+            hideTips();
+          });
+
+          //  删除
+          $(".ui-icon-delete").parent().click(function () {
+            if(confirm("确认删除？")){
+              $(this).parent().parent().parent().parent().remove();
+            }
+          });
+
+          //  设置日期选择器为当前时间
+          $("input[type='date']").attr({
+            value: '2017-5-22',
+            placeholder: new Date().toLocaleDateString()
+          });
+
+          //  调用选项卡
+          (function() {
+            var tab = new fz.Scroll('.ui-tab', {
+              role: 'tab',
+              interval: 3000
+            });
+          })();
+
+          //  隐藏操作提示
+          function hideTips() {
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+              $(".ui-tips").css({
+                height: 0, padding: 0
+              });
+            }, 2000);
+          }
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">欢迎<small><sub>&nbsp;&nbsp;&nbsp;&nbsp;Welcome</sub></small></h1>
+    <div class="ui-tab">
+        <ul class="ui-tab-nav ui-border-b">
+            <li class="current">添加</li>
+            <li>已添加</li>
+        </ul>
+        <ul class="ui-tab-content" style="width:200%">
+            <li class="current">
+                <div class="ui-tips ui-tips-warn">
+                    <i></i><span>我们貌似出了点小问题，请稍后再试！</span>
+                </div>
+                <div class="ui-tips ui-tips-success">
+                    <i></i><span>添加成功！</span>
+                </div>
+                <div class="ui-form ui-border-t">
+                    <form action="#">
+                        <div class="ui-form-item ui-border-b my-form-item">
+                            <input type="text" placeholder="岗位1">
+                            <button>
+                                <span class="ui-icon-add"></span>
+                                添加
+                            </button>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">项目名称</label>
+                            <input type="text" placeholder="土木一号" name="projectName">
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">项目地点</label>
+                            <input type="text" placeholder="江西省吉安市..." name="projectAddress">
+                        </div>
+                        <div class="ui-form-item ui-border-b" style="height: auto">
+                            <label class="ui-txt-justify">所需工种</label>
+                            <div class="checkbox-container">
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    钢筋工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    木工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    瓦工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    电工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    焊工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    铆工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    钳工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    管工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    仪表工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType">
+                                    起重工
+                                </label>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">所需人数</label>
+                            <input type="number" placeholder="10" name="workerNumber">
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">岗位要求</label>
+                            <input type="text" placeholder="需着正装" name="jobRequire">
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">施工工期</label>
+                            <input type="date" name="projectDate">
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">年龄要求</label>
+                            <input type="number" placeholder="20-30" name="ageRequire">
+                        </div>
+                        <div class="ui-form-item ui-border-b" style="border-color: #663!important;">
+                            <label class="ui-txt-justify">性别要求</label>
+                            <div class="ui-select">
+                                <select name="sexRequire">
+                                    <option value="none">无</option>
+                                    <option value="man">男</option>
+                                    <option value="woman">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify ui-txt-warning">岗位工资</label>
+                            <input type="number" placeholder="1000+" name="pay">
+                        </div>
+                    </form>
+                </div>
+            </li>
+            <li class="show-items">
+                <div class="ui-tips ui-tips-info">
+                    <i></i><span>现在处于可编辑状态</span>
+                </div>
+                <!--<figure class="item">-->
+                    <!--<figcaption class="item-header">-->
+                        <!--岗位1-->
+                        <!--<div class="item-btn-group">-->
+                            <!--<button><span class="ui-icon-delete"></span></button>-->
+                            <!--<button><span class="ui-icon-set"></span></button>-->
+                        <!--</div>-->
+                    <!--</figcaption>-->
+                <!--</figure>-->
+                <div class="ui-form ui-border-t">
+                    <form action="#">
+                        <div class="ui-form-item ui-border-b my-form-item">
+                            <input type="text" value="岗位1" disabled>
+                            <div>
+                                <button><span class="ui-icon-delete"></span></button>
+                                <button type="button"><span class="ui-icon-set"></span></button>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">项目名称</label>
+                            <input type="text" value="土木一号" name="projectName" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">项目地点</label>
+                            <input type="text" value="江西省吉安市..." name="projectAddress" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b" style="height: auto">
+                            <label class="ui-txt-justify">所需工种</label>
+                            <div class="checkbox-container">
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" checked disabled>
+                                    钢筋工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    木工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    瓦工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" checked disabled>
+                                    电工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    焊工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    铆工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    钳工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    管工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    仪表工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" checked disabled>
+                                    起重工
+                                </label>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">所需人数</label>
+                            <input type="number" value="10" name="workerNumber" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">岗位要求</label>
+                            <input type="text" value="需着正装" name="jobRequire" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">施工工期</label>
+                            <input type="date" name="projectDate" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">年龄要求</label>
+                            <input type="text" value="20~30" name="ageRequire" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b" style="border-color: #663!important;">
+                            <label class="ui-txt-justify">性别要求</label>
+                            <div class="ui-select">
+                                <select name="sexRequire" disabled>
+                                    <option value="none">无</option>
+                                    <option value="man">男</option>
+                                    <option value="woman">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify ui-txt-warning">岗位工资</label>
+                            <input type="number" value="10000" name="pay" disabled>
+                        </div>
+                    </form>
+                </div>
+                <div class="ui-form ui-border-t">
+                    <form action="#">
+                        <div class="ui-form-item ui-border-b my-form-item">
+                            <input type="text" value="岗位1" disabled>
+                            <div>
+                                <button type="button"><span class="ui-icon-delete"></span></button>
+                                <button><span class="ui-icon-set"></span></button>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">项目名称</label>
+                            <input type="text" value="土木一号" name="projectName" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">项目地点</label>
+                            <input type="text" value="江西省吉安市..." name="projectAddress" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b" style="height: auto">
+                            <label class="ui-txt-justify">所需工种</label>
+                            <div class="checkbox-container">
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" checked disabled>
+                                    钢筋工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    木工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    瓦工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" checked disabled>
+                                    电工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    焊工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    铆工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    钳工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    管工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" disabled>
+                                    仪表工
+                                </label>
+                                <label class="ui-checkbox-s">
+                                    <input type="checkbox" name="workerType" checked disabled>
+                                    起重工
+                                </label>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">所需人数</label>
+                            <input type="number" value="10" name="workerNumber" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">岗位要求</label>
+                            <input type="text" value="需着正装" name="jobRequire" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">施工工期</label>
+                            <input type="date" name="projectDate" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify">年龄要求</label>
+                            <input type="text" value="20~30" name="ageRequire" disabled>
+                        </div>
+                        <div class="ui-form-item ui-border-b" style="border-color: #663!important;">
+                            <label class="ui-txt-justify">性别要求</label>
+                            <div class="ui-select">
+                                <select name="sexRequire" disabled>
+                                    <option value="none">无</option>
+                                    <option value="man">男</option>
+                                    <option value="woman">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ui-form-item ui-border-b">
+                            <label class="ui-txt-justify ui-txt-warning">岗位工资</label>
+                            <input type="number" value="10000" name="pay" disabled>
+                        </div>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

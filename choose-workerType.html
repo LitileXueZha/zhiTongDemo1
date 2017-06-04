@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>选择工种</title>
+    <link rel="SHORTCUT ICON" href="img/14d.ico">
+    <link rel="stylesheet" href="css/frozen.css">
+    <link rel="stylesheet" href="css/basic.css">
+    <script src="lib/zepto.min.js"></script>
+    <script src="js/frozen.js"></script>
+    <style>
+        body{
+            background-color: #fff;
+        }
+        /*  标题说明文字  */
+        .title{
+            text-align: center;
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        /*  城市链接  */
+        .city{
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: #fff;
+            font-size: 14px;
+            line-height: 30px;
+            display: block;
+            width: 60px;
+            height: 30px;
+            text-align: center;
+        }
+        .ui-tag-hot::after{
+            display: none;
+        }
+        .ui-tag-hot::before{
+            font-size: 70px;
+            z-index: -1;
+        }
+        /*  选择工种容器  */
+        .worker-types{
+            width: 100%;
+            padding: 40px 20px 60px 32px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 114, 0, 0.1);
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .worker-types-item{
+            width: 100px;
+            height: 130px;
+            display: inline-block;
+            position: relative;
+            -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            -moz-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+        }
+        .my-active{
+            -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.36);
+            -moz-box-shadow: 0 0 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.36);
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.36);
+            transition: 1s;
+        }
+        .worker-types-item>p{
+            border-top: 1px solid rgba(255, 114, 0, 0.1);
+            padding: 5px 0;
+            color: #ff7200;
+        }
+        .my-active>p{
+            background-color: #ff7200;
+            color: #fff;
+            transition: 1s;
+        }
+        .worker-types-item-icon{
+            width: 100px;
+            height: 100px;
+        }
+        .worker-types-item-icon>i{
+            width: 40px;
+            height: 40px;
+            padding-left: 30px;
+            position: relative;
+            top: 30px;
+            z-index: -1;
+            color: #000;
+        }
+        .worker-types-item>p{
+            line-height: 20px;
+            text-align: center;
+        }
+        .worker-types-item-input{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            visibility: hidden;
+        }
+        /*  显示用户选择结果  */
+        .results-do{
+            position: relative;
+            width: 100%;
+            height: 44px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            text-align: center;
+            padding: 0 10px;
+            line-height: 50px;
+            margin-bottom: 10px;
+        }
+        .result{
+            display: block;
+            width: 100%;
+            height: 44px;
+            border-bottom: 1px dotted #ff7200;
+        }
+        .do{
+            position: absolute;
+            top: 1px;
+            right: 10px;
+        }
+        .do>i{
+            font-size: 44px;
+            color: #fff;
+            background: #ff7200;
+            border-radius: 2px;
+            border-bottom-left-radius: 0;
+        }
+    </style>
+    <script>
+        // 自定义数据文件
+        var workers = [
+          { chinese: '电工', value: 'electrician' },
+          { chinese: '木工', value: 'carpentry' },
+          { chinese: '钢筋工', value: 'steelWorker' },
+          { chinese: '瓦工', value: 'bricklayer' },
+          { chinese: '焊工', value: 'welder' },
+          { chinese: '铆工', value: 'riveter' },
+          { chinese: '钳工', value: 'fitter' },
+          { chinese: '管工', value: 'foreman' },
+          { chinese: '仪表工', value: 'instrumenter' },
+          { chinese: '起重工', value: 'craneman' },
+        ];
+        $(document).ready(function () {
+          // 全局用户选择信息
+          var result = {};
+
+          // 展示上个页面传来的城市信息,保存格式为
+          // { chinese: 淮南市, value: everywhere }
+          var s = document.URL.split('?')[1].split('=')[1].split('+'),
+              city = { chinese: decodeURIComponent(s[0]), value: s[1] };
+          result.city = {
+            chinese: city.chinese,
+            value: city.value
+          };
+          $('.city').html(city.chinese.substr(0, 4));  // 只取4个字符展示
+          $('.result').html(city.chinese.substr(0, 4));
+
+          // 读取数据，填充工种
+          // {
+          //   chinese: 电工, value: electrician
+          // }
+//          if(document.createDocumentFragment()){
+//            alert('支持');
+//          } else {
+//            alert('不支持');
+//          }
+          var items = document.createDocumentFragment();
+          workers.forEach(function (a) {
+            var child = document.createElement('div');
+            child.className = 'worker-types-item';
+            child.innerHTML = '<div class="worker-types-item-icon"><i class="ui-icon-bugle"></i></div>'
+                              +'<p>'+ a.chinese +'</p>'
+                              +'<input type="radio" class="worker-types-item-input" name="workerType" value="'+ a.value +'">';
+            items.appendChild(child);
+          });
+          $('.worker-types').append(items).click(function (e) {
+            var E = e || event,
+                t = E.target || E.srcElement;
+
+            // 点击了相应的icon，拿到这个工种
+            if(t.className === 'worker-types-item-icon'){
+              $('.worker-types-item').removeClass('my-active');
+              $(t).parent().addClass('my-active');
+              result.workerType = {
+                chinese: $(t).parent().find('p').html(),
+                value: $(t).parent().find('input').val()
+              };
+              $('.result').html(result.city.chinese +'+'+ result.workerType.chinese);
+            }
+          });
+
+          // 用户选择已确定,do
+          $('.do').click(function () {
+            console.log(result);
+          });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h3 class="title">什么是你擅长之处呢？</h3>
+    <a href="choose-city.html" class="city ui-tag-hot">淮南市</a>
+    <div class="worker-types">
+        <!--<div class="worker-types-item">-->
+            <!--<div class="worker-types-item-icon">-->
+
+            <!--</div>-->
+            <!--<p>木工</p>-->
+            <!--<input type="radio" class="worker-types-item-input" name="workerType">-->
+        <!--</div>-->
+    </div>
+    <div class="results-do">
+        <span class="result">不限地区</span>
+        <button class="do"><i class="ui-icon-search"></i></button>
+        <input type="hidden" id="results">
+    </div>
+</div>
+</body>
+</html>
