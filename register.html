@@ -53,10 +53,10 @@
         /*  上传  */
         .upload{
             position: relative;
-            height: 150px;
+            min-height: 150px;
         }
         .upload-input{
-            height: 150px;
+            height: 100%;
             opacity: 0;
             position: relative;
             z-index: 2;
@@ -75,7 +75,7 @@
         /*  预览  */
         .preview-img{
             width: 100%;
-            height: 150px;
+            height: 100%;
             text-align: center;
             position: absolute;
             top: 0;
@@ -85,7 +85,7 @@
             box-sizing: border-box;
         }
         .preview-img>img{
-            max-height: 140px;
+            max-width: 100%;
             opacity: 0;
         }
         /*  用户操作  */
@@ -122,9 +122,14 @@
               reader = new FileReader();
             var isImg = /png || jpeg/.test(files[0].type) || /image/.test(files[0].name);
             if(isImg){
+              var img = $(this).next().next().children('img');
               reader.readAsDataURL(files[0]);
               reader.onload = function () {
-                $(this).next().next().children('img').attr('src', reader.result).css('opacity',1);
+                $(img).attr('src', reader.result).css('opacity', 1);
+                // 图片加载完成，自适应高度
+                img[0].onload = function () {
+                  $(this).parent().css('height', ($(this).height()+10) +'px').parent().css('height', ($(this).height()+10) +'px')
+                };
               }.bind(this);
             }
             else{
@@ -165,17 +170,17 @@
             </div>
             <div class="ui-form-item ui-border-b">
                 <label class="ui-txt-justify">身份证号</label>
-                <input type="password" placeholder="有效证件" name="IDcard">
+                <input type="password" placeholder="有效证件" name="IDCard">
             </div>
             <div class="ui-form-item ui-border-b upload">
-                <input type="file" class="upload-input" name="IDcard" >
+                <input type="file" class="upload-input" name="IDPhoto" >
                 <span class="ui-center"><span class="ui-icon-add"></span>点击上传身份证</span>
                 <div class="preview-img">
                     <img src="">
                 </div>
             </div>
             <div class="ui-form-item ui-border-b upload">
-                <input type="file" class="upload-input" name="IDcard" >
+                <input type="file" class="upload-input" name="userPhoto" >
                 <span class="ui-center"><span class="ui-icon-add"></span>点击上传头像</span>
                 <div class="preview-img">
                     <img src="">
